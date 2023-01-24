@@ -1,0 +1,48 @@
+name: Sync and scan p4jenkins
+
+on:
+  schedule:
+    - cron: '* */12 * * *' # every 30 minutes
+  workflow_dispatch: # on button click
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Sync p4jenking from upstream jenkins github
+        uses: tgymnich/fork-sync@v1.6.3
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+          owner: ppiorunski
+          base: master
+          head: master
+          
+  scan:
+    needs: sync
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    - name: Login to docker hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Mend scan
+      run: |
+        ls ${{ github.workspace }}
+        docker pull perforce/ubuntu22-mend
+        docker run -v ${{ github.workspace }}:/scan \
+        perforce/ubuntu22-mend bash -c "java -jar /opt/white-source/wss-unified-agent.jar \
+        -noConfig true \
+        -d /scan \
+        -project p4jenkins-main \
+        -apiKey ${{ secrets.MEND_API_KEY }} \
+        -userKey ${{ secrets.MEND_USER_KEY }} \
+        -product p4jenkins \
+        -wss.url https://saas-eu.whitesourcesoftware.com/agent \
+        -resolveAllDependencies false \
+        -maven.resolveDependencies true"
