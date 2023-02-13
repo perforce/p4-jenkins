@@ -17,6 +17,7 @@ jobs:
           owner: ppiorunski
           base: master
           head: master
+          repo: jenkinsci/p4-plugin
           
   scan:
     needs: sync
