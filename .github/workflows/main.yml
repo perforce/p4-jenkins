@@ -14,10 +14,10 @@ jobs:
         uses: tgymnich/fork-sync@v1.8.0
         with:
           token: ${{ secrets.SYNC_TOKEN }}
-          owner: ppiorunski
+          owner: jenkinsci
           base: master
           head: master
-          repo: jenkinsci/p4-plugin
+          repo: p4-plugin
           
   scan:
     needs: sync
