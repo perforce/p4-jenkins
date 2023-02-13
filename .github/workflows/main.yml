@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Sync p4jenking from upstream jenkins github
-        uses: tgymnich/fork-sync@v1.6.3
+        uses: tgymnich/fork-sync@v1.8.0
         with:
           token: ${{ secrets.SYNC_TOKEN }}
           owner: ppiorunski
