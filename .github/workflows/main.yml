@@ -22,6 +22,7 @@ jobs:
   scan:
     needs: sync
     runs-on: ubuntu-latest
+    if: always()
     steps: 
     - name: Checkout source code
       uses: actions/checkout@v2
