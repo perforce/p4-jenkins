@@ -2,7 +2,7 @@ name: Sync and scan p4jenkins
 
 on:
   schedule:
-    - cron: '* */12 * * *' # every 30 minutes
+    - cron: '0 */12 * * *' # every 30 minutes
   workflow_dispatch: # on button click
 
 jobs:
