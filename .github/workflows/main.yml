@@ -47,4 +47,5 @@ jobs:
         -product p4jenkins \
         -wss.url https://saas-eu.whitesourcesoftware.com/agent \
         -resolveAllDependencies false \
-        -maven.resolveDependencies true"
+        -maven.resolveDependencies true \
+        -maven.runPreStep=true"
