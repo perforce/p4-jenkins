@@ -251,6 +251,7 @@ public class PerforceScm extends SCM {
 		if (workspace instanceof StreamWorkspaceImpl) {
 			StreamWorkspaceImpl ws = (StreamWorkspaceImpl) workspace;
 			key.append(ws.getStreamName());
+			key.append(ws.getStreamAtChange());
 			key.append(ws.getName());
 		}
 		if (workspace instanceof SpecWorkspaceImpl) {
@@ -705,7 +706,7 @@ public class PerforceScm extends SCM {
 		}
 
 		CpsScmFlowDefinition cps = (CpsScmFlowDefinition) definition;
-		if (!this.equals(cps.getScm())) {
+		if (!(cps.getScm() instanceof PerforceScm)) {
 			return null;
 		}
 
