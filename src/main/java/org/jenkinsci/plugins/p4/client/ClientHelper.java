@@ -68,6 +68,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -489,7 +490,8 @@ public class ClientHelper extends ConnectionHelper {
 		syncFiles(revisions, clean);
 
 		// remove all files from workspace
-		String root = URLDecoder.decode(iclient.getRoot(), "UTF-8");
+		String encodedRoot = iclient.getRoot().replace("+", "%2B");
+		String root = URLDecoder.decode(encodedRoot, StandardCharsets.UTF_8);
 		log("... rm -rf " + root);
 		log("");
 		silentlyForceDelete(root);
@@ -793,7 +795,7 @@ public class ClientHelper extends ConnectionHelper {
 		}
 
 		List<IFileSpec> status = iclient.reconcileFiles(files, statusOpts);
-		getValidate().check(status, "- no file(s) to reconcile", "instead of", "empty, assuming text", "also opened by");
+		getValidate().check(status, "No file(s) to reconcile", "- no file(s) to reconcile", "instead of", "empty, assuming text", "also opened by");
 	}
 
 	public String publishChange(Publish publish) throws Exception {
