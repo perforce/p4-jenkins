@@ -11,13 +11,14 @@ jobs:
 
     steps:
       - name: Sync p4jenking from upstream jenkins github
-        uses: tgymnich/fork-sync@v1.8.0
+        uses: tgymnich/fork-sync@v2.0.10
         with:
           token: ${{ secrets.SYNC_TOKEN }}
           owner: jenkinsci
           base: master
           head: master
           repo: p4-plugin
+          ignore_fail: false
           
   scan:
     needs: sync
