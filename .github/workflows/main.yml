@@ -1,13 +1,13 @@
 name: Sync and scan p4jenkins
 on:
   schedule:
-    - cron: '0 */2 * * *'
-  workflow_dispatch:
+    - cron: '0 */2 * * *' # every 30 minutes
+  workflow_dispatch: # on button click
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync p4jenkins from upstream jenkins github
+      - name: Sync p4jenking from upstream jenkins github
         uses: tgymnich/fork-sync@v2.0.10
         with:
           token: ${{ secrets.SYNC_TOKEN }}
@@ -23,7 +23,7 @@ jobs:
     if: always()
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -32,35 +32,35 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Pre-resolve Maven dependencies
-        run: mvn dependency:resolve -DskipTests --no-transfer-progress
+      - name: Pre-resolve Maven dependencies and generate dependency tree
+        run: |
+          mvn dependency:resolve -DskipTests --no-transfer-progress
+          mvn dependency:tree \
+            -DoutputFile=${{ github.workspace }}/whitesource_mvn_dependency_tree.txt \
+            -Dverbose -DoutputType=text \
+            --no-transfer-progress
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - name: Login to docker hub
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Pre-resolve Maven dependencies
-        run: |
-            mvn dependency:resolve -DskipTests --no-transfer-progress
-            mvn dependency:tree -DoutputFile=${{ github.workspace }}/whitesource_mvn_dependency_tree.txt -Dverbose -DoutputType=text --no-transfer-progress
-        
       - name: Mend scan
         run: |
-            docker pull perforce/ubuntu22-mend
-            docker run \
-              -v "${{ github.workspace }}:/scan" \
-              -v "$HOME/.m2:/root/.m2" \
-              perforce/ubuntu22-mend \
-              java -jar /opt/white-source/wss-unified-agent.jar \
-              -noConfig true \
-              -d /scan \
-              -project p4jenkins-main \
-              -apiKey "${{ secrets.MEND_API_KEY }}" \
-              -userKey "${{ secrets.MEND_USER_KEY }}" \
-              -product p4jenkins \
-              -wss.url https://saas-eu.whitesourcesoftware.com/agent \
-              -resolveAllDependencies false \
-              -maven.resolveDependencies false \
-              -maven.runPreStep false
+          ls ${{ github.workspace }}
+          docker pull perforce/ubuntu22-mend
+          docker run \
+            -v "${{ github.workspace }}:/scan" \
+            -v "$HOME/.m2:/root/.m2" \
+            perforce/ubuntu22-mend bash -c "java -jar /opt/white-source/wss-unified-agent.jar \
+            -noConfig true \
+            -d /scan \
+            -project p4jenkins-main \
+            -apiKey ${{ secrets.MEND_API_KEY }} \
+            -userKey ${{ secrets.MEND_USER_KEY }} \
+            -product p4jenkins \
+            -wss.url https://saas-eu.whitesourcesoftware.com/agent \
+            -resolveAllDependencies false \
+            -maven.resolveDependencies true \
+            -maven.runPreStep false"
