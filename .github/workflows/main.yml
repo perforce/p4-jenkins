@@ -1,70 +1,61 @@
-  name: Sync and scan p4jenkins                                                                                                                                                               
-                                                            
-  on:
-    schedule:
-      - cron: '0 */2 * * *'                                                                                                                                                                   
-    workflow_dispatch:
-                                                                                                                                                                                              
-  jobs:                                                     
-    sync:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Sync p4jenkins from upstream jenkins github
-          uses: tgymnich/fork-sync@v2.0.10                                                                                                                                                    
-          with:                                                                                                                                                                               
-            token: ${{ secrets.SYNC_TOKEN }}                                                                                                                                                  
-            owner: jenkinsci                                                                                                                                                                  
-            base: master                                    
-            head: master
-            repo: p4-plugin                                                                                                                                                                   
-            ignore_fail: false
-                                                                                                                                                                                              
-    scan:                                                   
-      needs: sync                                                                                                                                                                             
-      runs-on: ubuntu-latest                                
-      if: always()
-      steps:
-        - name: Checkout source code
-          uses: actions/checkout@v4
+name: Sync and scan p4jenkins
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync p4jenkins from upstream jenkins github
+        uses: tgymnich/fork-sync@v2.0.10
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+          owner: jenkinsci
+          base: master
+          head: master
+          repo: p4-plugin
+          ignore_fail: false
 
-        - name: Set up Java 17                                                                                                                                                                
-          uses: actions/setup-java@v4
-          with:                                                                                                                                                                               
-            java-version: '17'                              
-            distribution: 'temurin'
-            cache: maven
+  scan:
+    needs: sync
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
 
-        - name: Print Java and Maven versions
-          run: |
-            echo "=== Java Version ==="                                                                                                                                                       
-            java -version
-            echo "=== Maven Version ==="                                                                                                                                                      
-            mvn --version                                   
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-        - name: Pre-resolve Maven dependencies into cache
-          run: mvn dependency:resolve -DskipTests --no-transfer-progress                                                                                                                      
-   
-        - name: Login to Docker Hub                                                                                                                                                           
-          uses: docker/login-action@v3                      
-          with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}                                                                                                                                       
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-                                                                                                                                                                                              
-        - name: Mend scan
-          run: |
-            docker pull perforce/ubuntu22-mend
-            docker run \
-              -v "${{ github.workspace }}:/scan" \
-              -v "$HOME/.m2:/root/.m2" \
-              perforce/ubuntu22-mend \
-              java -jar /opt/white-source/wss-unified-agent.jar \
-              -noConfig true \
-              -d /scan \
-              -project p4jenkins-main \
-              -apiKey "${{ secrets.MEND_API_KEY }}" \
-              -userKey "${{ secrets.MEND_USER_KEY }}" \
-              -product p4jenkins \
-              -wss.url https://saas-eu.whitesourcesoftware.com/agent \
-              -resolveAllDependencies false \
-              -maven.resolveDependencies true \
-              -maven.runPreStep true
+      - name: Pre-resolve Maven dependencies
+        run: mvn dependency:resolve -DskipTests --no-transfer-progress
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Mend scan
+        run: |
+          docker pull perforce/ubuntu22-mend
+          docker run \
+            -v "${{ github.workspace }}:/scan" \
+            -v "$HOME/.m2:/root/.m2" \
+            perforce/ubuntu22-mend \
+            java -jar /opt/white-source/wss-unified-agent.jar \
+            -noConfig true \
+            -d /scan \
+            -project p4jenkins-main \
+            -apiKey "${{ secrets.MEND_API_KEY }}" \
+            -userKey "${{ secrets.MEND_USER_KEY }}" \
+            -product p4jenkins \
+            -wss.url https://saas-eu.whitesourcesoftware.com/agent \
+            -resolveAllDependencies false \
+            -maven.resolveDependencies true \
+            -maven.runPreStep false
