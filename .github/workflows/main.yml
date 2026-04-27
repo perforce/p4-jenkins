@@ -46,6 +46,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Debug Docker environment
+        run: |
+          docker run \
+          -v "$HOME/.m2:/root/.m2" \
+          -v "${{ github.workspace }}:/scan" \
+          perforce/ubuntu22-mend bash -c "
+            echo '=== Java ===' && java -version &&
+            echo '=== Maven ===' && mvn --version &&
+            echo '=== whoami ===' && whoami &&
+            echo '=== HOME ===' && echo \$HOME &&
+            echo '=== .m2 contents ===' && ls /root/.m2/repository | head -10 &&
+            echo '=== curl repo ===' && curl -s -o /dev/null -w '%{http_code}' https://repo.jenkins-ci.org/public/
+          "
+          
       - name: Mend scan
         run: |
           ls ${{ github.workspace }}
