@@ -41,21 +41,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Pre-resolve Maven dependencies
+        run: |
+            mvn dependency:resolve -DskipTests --no-transfer-progress
+            mvn dependency:tree -DoutputFile=${{ github.workspace }}/whitesource_mvn_dependency_tree.txt -Dverbose -DoutputType=text --no-transfer-progress
+        
       - name: Mend scan
         run: |
-          docker pull perforce/ubuntu22-mend
-          docker run \
-            -v "${{ github.workspace }}:/scan" \
-            -v "$HOME/.m2:/root/.m2" \
-            perforce/ubuntu22-mend \
-            java -jar /opt/white-source/wss-unified-agent.jar \
-            -noConfig true \
-            -d /scan \
-            -project p4jenkins-main \
-            -apiKey "${{ secrets.MEND_API_KEY }}" \
-            -userKey "${{ secrets.MEND_USER_KEY }}" \
-            -product p4jenkins \
-            -wss.url https://saas-eu.whitesourcesoftware.com/agent \
-            -resolveAllDependencies false \
-            -maven.resolveDependencies true \
-            -maven.runPreStep false
+            docker pull perforce/ubuntu22-mend
+            docker run \
+              -v "${{ github.workspace }}:/scan" \
+              -v "$HOME/.m2:/root/.m2" \
+              perforce/ubuntu22-mend \
+              java -jar /opt/white-source/wss-unified-agent.jar \
+              -noConfig true \
+              -d /scan \
+              -project p4jenkins-main \
+              -apiKey "${{ secrets.MEND_API_KEY }}" \
+              -userKey "${{ secrets.MEND_USER_KEY }}" \
+              -product p4jenkins \
+              -wss.url https://saas-eu.whitesourcesoftware.com/agent \
+              -resolveAllDependencies false \
+              -maven.resolveDependencies false \
+              -maven.runPreStep false
