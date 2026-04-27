@@ -50,20 +50,21 @@
             username: ${{ secrets.DOCKERHUB_USERNAME }}                                                                                                                                       
             password: ${{ secrets.DOCKERHUB_TOKEN }}
                                                                                                                                                                                               
-        - name: Mend scan                                   
+        - name: Mend scan
           run: |
             docker pull perforce/ubuntu22-mend
             docker run \
-              -v ${{ github.workspace }}:/scan \                                                                                                                                              
-              -v $HOME/.m2:/root/.m2 \
-              perforce/ubuntu22-mend bash -c "java -jar /opt/white-source/wss-unified-agent.jar \                                                                                             
-              -noConfig true \                              
-              -d /scan \                                                                                                                                                                      
+              -v "${{ github.workspace }}:/scan" \
+              -v "$HOME/.m2:/root/.m2" \
+              perforce/ubuntu22-mend \
+              java -jar /opt/white-source/wss-unified-agent.jar \
+              -noConfig true \
+              -d /scan \
               -project p4jenkins-main \
-              -apiKey ${{ secrets.MEND_API_KEY }} \                                                                                                                                           
-              -userKey ${{ secrets.MEND_USER_KEY }} \       
+              -apiKey "${{ secrets.MEND_API_KEY }}" \
+              -userKey "${{ secrets.MEND_USER_KEY }}" \
               -product p4jenkins \
-              -wss.url https://saas-eu.whitesourcesoftware.com/agent \                                                                                                                        
+              -wss.url https://saas-eu.whitesourcesoftware.com/agent \
               -resolveAllDependencies false \
-              -maven.resolveDependencies true \                                                                                                                                               
-              -maven.runPreStep true"      
+              -maven.resolveDependencies true \
+              -maven.runPreStep true
