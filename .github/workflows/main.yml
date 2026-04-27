@@ -46,27 +46,32 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Install Maven 3.9.9
+        run: |
+          wget -q https://archive.apache.org/dist/maven/maven-3/3.9.15/binaries/apache-maven-3.9.15-bin.tar.gz
+          sudo tar -xzf apache-maven-3.9.15-bin.tar.gz -C /opt
+          echo "MAVEN_HOME=/opt/apache-maven-3.9.15" >> $GITHUB_ENV
+          echo "/opt/apache-maven-3.9.15/bin" >> $GITHUB_PATH
+
       - name: Debug Docker environment
         run: |
           docker run \
           -v "$HOME/.m2:/root/.m2" \
+          -v "/opt/apache-maven-3.9.15:/opt/maven" \
           -v "${{ github.workspace }}:/scan" \
+          -e PATH="/opt/maven/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
           perforce/ubuntu22-mend bash -c "
-            echo '=== Java ===' && java -version &&
             echo '=== Maven ===' && mvn --version &&
-            echo '=== whoami ===' && whoami &&
-            echo '=== HOME ===' && echo \$HOME &&
-            echo '=== .m2 contents ===' && ls /root/.m2/repository | head -10 &&
-            echo '=== curl repo ===' && curl -s -o /dev/null -w '%{http_code}' https://repo.jenkins-ci.org/public/
+            cd /scan && mvn dependency:tree -DoutputFile=/tmp/test.txt -Dverbose -DoutputType=text -T1 2>&1 | tail -20
           "
           
       - name: Mend scan
         run: |
-          ls ${{ github.workspace }}
-          docker pull perforce/ubuntu22-mend
           docker run \
             -v "${{ github.workspace }}:/scan" \
             -v "$HOME/.m2:/root/.m2" \
+            -v "/opt/apache-maven-3.9.15:/opt/maven" \
+            -e PATH="/opt/maven/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
             perforce/ubuntu22-mend bash -c "java -jar /opt/white-source/wss-unified-agent.jar \
             -noConfig true \
             -d /scan \
