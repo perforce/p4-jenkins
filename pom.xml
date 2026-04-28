@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>p4</artifactId>
-  <version>1.17.3-SNAPSHOT</version>
+  <version>1.17.4-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>P4 Plugin</name>
   <description>P4 Client plugin for the Jenkins SCM provider.</description>
