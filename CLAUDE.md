@@ -87,6 +87,8 @@ These are the standing instructions for this repo. The detailed rules live in
   minimum code" expectations.
 - **`.claude/guidelines/code-review.md`** — checklist to apply when reviewing
   (your own or others') changes.
+- **`.claude/guidelines/jenkins-manual-testing.md`** — rules for creating/running
+  jobs against a live Jenkins instance to manually test the plugin.
 
 ### The short version
 
