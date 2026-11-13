@@ -73,22 +73,22 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>1.87</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>1.87</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpg-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>1.87</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcutil-jdk18on</artifactId>
-        <version>1.86</version>
+        <version>1.87</version>
       </dependency>
 
       <!-- Direct dep; pin above BOM's 1402.v94c9ce464861, which has a known sandbox-bypass flaw -->
@@ -120,6 +120,40 @@
         <groupId>org.jenkins-ci.plugins.workflow</groupId>
         <artifactId>workflow-cps</artifactId>
         <version>4383.v04fa_a_3d67b_d9</version>
+      </dependency>
+
+      <!-- Transitive via scm-api -> asm-api; Jenkins BOM pins asm at 9.8 and asm-api plugin still bundles an older line -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>9.11.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-analysis</artifactId>
+        <version>9.11.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>9.11.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-tree</artifactId>
+        <version>9.11.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-util</artifactId>
+        <version>9.11.1</version>
+      </dependency>
+
+      <!-- Transitive via json-api; json-api plugin still bundles an older line -->
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20260719</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
