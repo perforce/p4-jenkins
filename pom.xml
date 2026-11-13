@@ -45,11 +45,6 @@
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
-    <repository>
-      <id>artifactory.bnr.perforce.com</id>
-      <name>artifactory.bnr.perforce.com-snapshots</name>
-      <url>https://artifactory.bnr.perforce.com/artifactory/snapshots</url>
-    </repository>
   </repositories>
 
   <pluginRepositories>
